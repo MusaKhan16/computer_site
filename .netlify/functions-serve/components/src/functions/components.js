@@ -5990,8 +5990,8 @@ var require_utils2 = __commonJS({
       return 0;
     }
     exports2.maxWireVersion = maxWireVersion;
-    function collationNotSupported(server2, cmd) {
-      return cmd && cmd.collation && maxWireVersion(server2) < 5;
+    function collationNotSupported(server, cmd) {
+      return cmd && cmd.collation && maxWireVersion(server) < 5;
     }
     exports2.collationNotSupported = collationNotSupported;
     function eachAsync(arr, eachFn, callback) {
@@ -6433,8 +6433,8 @@ var require_utils2 = __commonJS({
       return Object.values(en).join(", ");
     }
     exports2.enumToString = enumToString;
-    function supportsRetryableWrites(server2) {
-      return !!server2.loadBalanced || server2.description.maxWireVersion >= 6 && !!server2.description.logicalSessionTimeoutMinutes && server2.description.type !== common_1.ServerType.Standalone;
+    function supportsRetryableWrites(server) {
+      return !!server.loadBalanced || server.description.maxWireVersion >= 6 && !!server.description.logicalSessionTimeoutMinutes && server.description.type !== common_1.ServerType.Standalone;
     }
     exports2.supportsRetryableWrites = supportsRetryableWrites;
     function parsePackageVersion({ version }) {
@@ -6567,9 +6567,9 @@ var require_transactions = __commonJS({
         }
         throw new error_1.MongoRuntimeError(`Attempted illegal state transition from [${this.state}] to [${nextState}]`);
       }
-      pinServer(server2) {
+      pinServer(server) {
         if (this.isActive) {
-          this._pinnedServer = server2;
+          this._pinnedServer = server;
         }
       }
       unpinServer() {
@@ -6797,17 +6797,17 @@ var require_topology_description = __commonJS({
           }
         }
         this.logicalSessionTimeoutMinutes = void 0;
-        for (const [, server2] of this.servers) {
-          if (server2.isReadable) {
-            if (server2.logicalSessionTimeoutMinutes == null) {
+        for (const [, server] of this.servers) {
+          if (server.isReadable) {
+            if (server.logicalSessionTimeoutMinutes == null) {
               this.logicalSessionTimeoutMinutes = void 0;
               break;
             }
             if (this.logicalSessionTimeoutMinutes == null) {
-              this.logicalSessionTimeoutMinutes = server2.logicalSessionTimeoutMinutes;
+              this.logicalSessionTimeoutMinutes = server.logicalSessionTimeoutMinutes;
               continue;
             }
-            this.logicalSessionTimeoutMinutes = Math.min(this.logicalSessionTimeoutMinutes, server2.logicalSessionTimeoutMinutes);
+            this.logicalSessionTimeoutMinutes = Math.min(this.logicalSessionTimeoutMinutes, server.logicalSessionTimeoutMinutes);
           }
         }
       }
@@ -6975,9 +6975,9 @@ var require_topology_description = __commonJS({
       if (serverDescription.setVersion != null && (maxSetVersion == null || serverDescription.setVersion > maxSetVersion)) {
         maxSetVersion = serverDescription.setVersion;
       }
-      for (const [address, server2] of serverDescriptions) {
-        if (server2.type === common_1.ServerType.RSPrimary && server2.address !== serverDescription.address) {
-          serverDescriptions.set(address, new server_description_1.ServerDescription(server2.address));
+      for (const [address, server] of serverDescriptions) {
+        if (server.type === common_1.ServerType.RSPrimary && server.address !== serverDescription.address) {
+          serverDescriptions.set(address, new server_description_1.ServerDescription(server.address));
           break;
         }
       }
@@ -7074,7 +7074,7 @@ var require_shared = __commonJS({
       }
       if (topologyOrServer.description && topologyOrServer.description instanceof topology_description_1.TopologyDescription) {
         const servers = Array.from(topologyOrServer.description.servers.values());
-        return servers.some((server2) => server2.type === common_1.ServerType.Mongos);
+        return servers.some((server) => server.type === common_1.ServerType.Mongos);
       }
       return false;
     }
@@ -7192,13 +7192,13 @@ var require_server_selection = __commonJS({
       }
       if (topologyDescription.type === common_1.TopologyType.ReplicaSetWithPrimary) {
         const primary = Array.from(topologyDescription.servers.values()).filter(primaryFilter)[0];
-        return servers.reduce((result, server2) => {
+        return servers.reduce((result, server) => {
           var _a;
-          const stalenessMS = server2.lastUpdateTime - server2.lastWriteDate - (primary.lastUpdateTime - primary.lastWriteDate) + topologyDescription.heartbeatFrequencyMS;
+          const stalenessMS = server.lastUpdateTime - server.lastWriteDate - (primary.lastUpdateTime - primary.lastWriteDate) + topologyDescription.heartbeatFrequencyMS;
           const staleness = stalenessMS / 1e3;
           const maxStalenessSeconds = (_a = readPreference.maxStalenessSeconds) !== null && _a !== void 0 ? _a : 0;
           if (staleness <= maxStalenessSeconds) {
-            result.push(server2);
+            result.push(server);
           }
           return result;
         }, []);
@@ -7208,13 +7208,13 @@ var require_server_selection = __commonJS({
           return servers;
         }
         const sMax = servers.reduce((max, s) => s.lastWriteDate > max.lastWriteDate ? s : max);
-        return servers.reduce((result, server2) => {
+        return servers.reduce((result, server) => {
           var _a;
-          const stalenessMS = sMax.lastWriteDate - server2.lastWriteDate + topologyDescription.heartbeatFrequencyMS;
+          const stalenessMS = sMax.lastWriteDate - server.lastWriteDate + topologyDescription.heartbeatFrequencyMS;
           const staleness = stalenessMS / 1e3;
           const maxStalenessSeconds = (_a = readPreference.maxStalenessSeconds) !== null && _a !== void 0 ? _a : 0;
           if (staleness <= maxStalenessSeconds) {
-            result.push(server2);
+            result.push(server);
           }
           return result;
         }, []);
@@ -7238,9 +7238,9 @@ var require_server_selection = __commonJS({
       }
       for (let i = 0; i < readPreference.tags.length; ++i) {
         const tagSet = readPreference.tags[i];
-        const serversMatchingTagset = servers.reduce((matched, server2) => {
-          if (tagSetMatch(tagSet, server2.tags))
-            matched.push(server2);
+        const serversMatchingTagset = servers.reduce((matched, server) => {
+          if (tagSetMatch(tagSet, server.tags))
+            matched.push(server);
           return matched;
         }, []);
         if (serversMatchingTagset.length) {
@@ -7250,28 +7250,28 @@ var require_server_selection = __commonJS({
       return [];
     }
     function latencyWindowReducer(topologyDescription, servers) {
-      const low = servers.reduce((min, server2) => min === -1 ? server2.roundTripTime : Math.min(server2.roundTripTime, min), -1);
+      const low = servers.reduce((min, server) => min === -1 ? server.roundTripTime : Math.min(server.roundTripTime, min), -1);
       const high = low + topologyDescription.localThresholdMS;
-      return servers.reduce((result, server2) => {
-        if (server2.roundTripTime <= high && server2.roundTripTime >= low)
-          result.push(server2);
+      return servers.reduce((result, server) => {
+        if (server.roundTripTime <= high && server.roundTripTime >= low)
+          result.push(server);
         return result;
       }, []);
     }
-    function primaryFilter(server2) {
-      return server2.type === common_1.ServerType.RSPrimary;
+    function primaryFilter(server) {
+      return server.type === common_1.ServerType.RSPrimary;
     }
-    function secondaryFilter(server2) {
-      return server2.type === common_1.ServerType.RSSecondary;
+    function secondaryFilter(server) {
+      return server.type === common_1.ServerType.RSSecondary;
     }
-    function nearestFilter(server2) {
-      return server2.type === common_1.ServerType.RSSecondary || server2.type === common_1.ServerType.RSPrimary;
+    function nearestFilter(server) {
+      return server.type === common_1.ServerType.RSSecondary || server.type === common_1.ServerType.RSPrimary;
     }
-    function knownFilter(server2) {
-      return server2.type !== common_1.ServerType.Unknown;
+    function knownFilter(server) {
+      return server.type !== common_1.ServerType.Unknown;
     }
-    function loadBalancerFilter(server2) {
-      return server2.type === common_1.ServerType.LoadBalancer;
+    function loadBalancerFilter(server) {
+      return server.type === common_1.ServerType.LoadBalancer;
     }
     function readPreferenceServerSelector(readPreference) {
       if (!readPreference.isValid()) {
@@ -7369,8 +7369,8 @@ var require_execute_operation = __commonJS({
       });
     }
     exports2.executeOperation = executeOperation;
-    function supportsRetryableReads(server2) {
-      return (0, utils_1.maxWireVersion)(server2) >= 6;
+    function supportsRetryableReads(server) {
+      return (0, utils_1.maxWireVersion)(server) >= 6;
     }
     function executeWithServerSelection(topology, session, operation, callback) {
       var _a;
@@ -7410,29 +7410,29 @@ var require_execute_operation = __commonJS({
           }));
           return;
         }
-        topology.selectServer(selector, serverSelectionOptions, (e, server2) => {
-          if (e || operation.hasAspect(operation_1.Aspect.READ_OPERATION) && !supportsRetryableReads(server2) || operation.hasAspect(operation_1.Aspect.WRITE_OPERATION) && !(0, utils_2.supportsRetryableWrites)(server2)) {
+        topology.selectServer(selector, serverSelectionOptions, (e, server) => {
+          if (e || operation.hasAspect(operation_1.Aspect.READ_OPERATION) && !supportsRetryableReads(server) || operation.hasAspect(operation_1.Aspect.WRITE_OPERATION) && !(0, utils_2.supportsRetryableWrites)(server)) {
             callback(e);
             return;
           }
-          if (err && err instanceof error_1.MongoNetworkError && server2.loadBalanced && session && session.isPinned && !session.inTransaction() && operation.hasAspect(operation_1.Aspect.CURSOR_CREATING)) {
+          if (err && err instanceof error_1.MongoNetworkError && server.loadBalanced && session && session.isPinned && !session.inTransaction() && operation.hasAspect(operation_1.Aspect.CURSOR_CREATING)) {
             session.unpin({ force: true, forceClear: true });
           }
-          operation.execute(server2, session, callback);
+          operation.execute(server, session, callback);
         });
       }
       if (readPreference && !readPreference.equals(read_preference_1.ReadPreference.primary) && session && session.inTransaction()) {
         callback(new error_1.MongoTransactionError(`Read preference in a transaction must be primary, not: ${readPreference.mode}`));
         return;
       }
-      topology.selectServer(selector, serverSelectionOptions, (err, server2) => {
+      topology.selectServer(selector, serverSelectionOptions, (err, server) => {
         if (err) {
           callback(err);
           return;
         }
         if (session && operation.hasAspect(operation_1.Aspect.RETRYABLE)) {
-          const willRetryRead = topology.s.options.retryReads !== false && !inTransaction && supportsRetryableReads(server2) && operation.canRetryRead;
-          const willRetryWrite = topology.s.options.retryWrites === true && !inTransaction && (0, utils_2.supportsRetryableWrites)(server2) && operation.canRetryWrite;
+          const willRetryRead = topology.s.options.retryReads !== false && !inTransaction && supportsRetryableReads(server) && operation.canRetryRead;
+          const willRetryWrite = topology.s.options.retryWrites === true && !inTransaction && (0, utils_2.supportsRetryableWrites)(server) && operation.canRetryWrite;
           const hasReadAspect = operation.hasAspect(operation_1.Aspect.READ_OPERATION);
           const hasWriteAspect = operation.hasAspect(operation_1.Aspect.WRITE_OPERATION);
           if (hasReadAspect && willRetryRead || hasWriteAspect && willRetryWrite) {
@@ -7440,11 +7440,11 @@ var require_execute_operation = __commonJS({
               operation.options.willRetryWrite = true;
               session.incrementTransactionNumber();
             }
-            operation.execute(server2, session, callbackWithRetry);
+            operation.execute(server, session, callbackWithRetry);
             return;
           }
         }
-        operation.execute(server2, session, callback);
+        operation.execute(server, session, callback);
       });
     }
     function shouldRetryWrite(err) {
@@ -7530,13 +7530,13 @@ var require_command = __commonJS({
         }
         return true;
       }
-      executeCommand(server2, session, cmd, callback) {
-        this.server = server2;
+      executeCommand(server, session, cmd, callback) {
+        this.server = server;
         const options = __spreadProps(__spreadValues(__spreadValues({}, this.options), this.bsonOptions), {
           readPreference: this.readPreference,
           session
         });
-        const serverWireVersion = (0, utils_1.maxWireVersion)(server2);
+        const serverWireVersion = (0, utils_1.maxWireVersion)(server);
         const inTransaction = this.session && this.session.inTransaction();
         if (this.readConcern && (0, sessions_1.commandSupportsReadConcern)(cmd) && !inTransaction) {
           Object.assign(cmd, { readConcern: this.readConcern });
@@ -7545,7 +7545,7 @@ var require_command = __commonJS({
           options.omitReadPreference = true;
         }
         if (options.collation && serverWireVersion < SUPPORTS_WRITE_CONCERN_AND_COLLATION) {
-          callback(new error_1.MongoCompatibilityError(`Server ${server2.name}, which reports wire version ${serverWireVersion}, does not support collation`));
+          callback(new error_1.MongoCompatibilityError(`Server ${server.name}, which reports wire version ${serverWireVersion}, does not support collation`));
           return;
         }
         if (this.writeConcern && this.hasAspect(operation_1.Aspect.WRITE_OPERATION) && !inTransaction) {
@@ -7569,7 +7569,7 @@ var require_command = __commonJS({
             cmd = (0, utils_1.decorateWithExplain)(cmd, this.explain);
           }
         }
-        server2.command(this.ns, cmd, options, callback);
+        server.command(this.ns, cmd, options, callback);
       }
     };
     exports2.CommandOperation = CommandOperation;
@@ -7590,9 +7590,9 @@ var require_run_command = __commonJS({
         this.options = options !== null && options !== void 0 ? options : {};
         this.command = command;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const command = this.command;
-        this.executeCommand(server2, session, command, callback);
+        this.executeCommand(server, session, command, callback);
       }
     };
     exports2.RunCommandOperation = RunCommandOperation;
@@ -10093,18 +10093,18 @@ var require_get_more = __commonJS({
     var error_1 = require_error();
     var operation_1 = require_operation();
     var GetMoreOperation = class extends operation_1.AbstractOperation {
-      constructor(ns, cursorId, server2, options = {}) {
+      constructor(ns, cursorId, server, options = {}) {
         super(options);
         this.options = options;
         this.ns = ns;
         this.cursorId = cursorId;
-        this.server = server2;
+        this.server = server;
       }
-      execute(server2, session, callback) {
-        if (server2 !== this.server) {
+      execute(server, session, callback) {
+        if (server !== this.server) {
           return callback(new error_1.MongoRuntimeError("Getmore must run on the same server operation began on"));
         }
-        server2.getMore(this.ns, this.cursorId, this.options, callback);
+        server.getMore(this.ns, this.cursorId, this.options, callback);
       }
     };
     exports2.GetMoreOperation = GetMoreOperation;
@@ -10422,16 +10422,16 @@ var require_abstract_cursor = __commonJS({
       _getMore(batchSize, callback) {
         const cursorId = this[kId];
         const cursorNs = this[kNamespace];
-        const server2 = this[kServer];
+        const server = this[kServer];
         if (cursorId == null) {
           callback(new error_1.MongoRuntimeError("Unable to iterate cursor with no id"));
           return;
         }
-        if (server2 == null) {
+        if (server == null) {
           callback(new error_1.MongoRuntimeError("Unable to iterate cursor without selected server"));
           return;
         }
-        const getMoreOperation = new get_more_1.GetMoreOperation(cursorNs, cursorId, server2, __spreadProps(__spreadValues({}, this[kOptions]), {
+        const getMoreOperation = new get_more_1.GetMoreOperation(cursorNs, cursorId, server, __spreadProps(__spreadValues({}, this[kOptions]), {
           session: this[kSession],
           batchSize
         }));
@@ -10522,7 +10522,7 @@ var require_abstract_cursor = __commonJS({
       var _a;
       const cursorId = cursor[kId];
       const cursorNs = cursor[kNamespace];
-      const server2 = cursor[kServer];
+      const server = cursor[kServer];
       const session = cursor[kSession];
       const error = options === null || options === void 0 ? void 0 : options.error;
       const needsToEmitClosed = (_a = options === null || options === void 0 ? void 0 : options.needsToEmitClosed) !== null && _a !== void 0 ? _a : cursor[kDocuments].length === 0;
@@ -10531,7 +10531,7 @@ var require_abstract_cursor = __commonJS({
           return completeCleanup();
         }
       }
-      if (cursorId == null || server2 == null || cursorId.isZero() || cursorNs == null) {
+      if (cursorId == null || server == null || cursorId.isZero() || cursorNs == null) {
         if (needsToEmitClosed) {
           cursor[kClosed] = true;
           cursor[kId] = bson_1.Long.ZERO;
@@ -10563,7 +10563,7 @@ var require_abstract_cursor = __commonJS({
         return callback();
       }
       cursor[kKilled] = true;
-      server2.killCursors(cursorNs, [cursorId], __spreadProps(__spreadValues({}, (0, bson_1.pluckBSONSerializeOptions)(cursor[kOptions])), { session }), () => completeCleanup());
+      server.killCursors(cursorNs, [cursorId], __spreadProps(__spreadValues({}, (0, bson_1.pluckBSONSerializeOptions)(cursor[kOptions])), { session }), () => completeCleanup());
     }
     function assertUninitialized(cursor) {
       if (cursor[kInitialized]) {
@@ -10672,9 +10672,9 @@ var require_aggregate = __commonJS({
       addToPipeline(stage) {
         this.pipeline.push(stage);
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const options = this.options;
-        const serverWireVersion = (0, utils_1.maxWireVersion)(server2);
+        const serverWireVersion = (0, utils_1.maxWireVersion)(server);
         const command = { aggregate: this.target, pipeline: this.pipeline };
         if (this.hasWriteStage && serverWireVersion < MIN_WIRE_VERSION_$OUT_READ_CONCERN_SUPPORT) {
           this.readConcern = void 0;
@@ -10700,7 +10700,7 @@ var require_aggregate = __commonJS({
         if (options.batchSize && !this.hasWriteStage) {
           command.cursor.batchSize = options.batchSize;
         }
-        super.executeCommand(server2, session, command, callback);
+        super.executeCommand(server, session, command, callback);
       }
     };
     exports2.AggregateOperation = AggregateOperation;
@@ -10836,7 +10836,7 @@ var require_count = __commonJS({
         this.collectionName = namespace.collection;
         this.query = filter;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const options = this.options;
         const cmd = {
           count: this.collectionName,
@@ -10854,7 +10854,7 @@ var require_count = __commonJS({
         if (typeof options.maxTimeMS === "number") {
           cmd.maxTimeMS = options.maxTimeMS;
         }
-        super.executeCommand(server2, session, cmd, (err, result) => {
+        super.executeCommand(server, session, cmd, (err, result) => {
           callback(err, result ? result.n : 0);
         });
       }
@@ -10986,16 +10986,16 @@ var require_find = __commonJS({
         }
         this.filter = filter != null && filter._bsontype === "ObjectID" ? { _id: filter } : filter;
       }
-      execute(server2, session, callback) {
-        this.server = server2;
-        const serverWireVersion = (0, utils_1.maxWireVersion)(server2);
+      execute(server, session, callback) {
+        this.server = server;
+        const serverWireVersion = (0, utils_1.maxWireVersion)(server);
         const options = this.options;
         if (options.allowDiskUse != null && serverWireVersion < 4) {
           callback(new error_1.MongoCompatibilityError('Option "allowDiskUse" is not supported on MongoDB < 3.2'));
           return;
         }
         if (options.collation && serverWireVersion < SUPPORTS_WRITE_CONCERN_AND_COLLATION) {
-          callback(new error_1.MongoCompatibilityError(`Server ${server2.name}, which reports wire version ${serverWireVersion}, does not support collation`));
+          callback(new error_1.MongoCompatibilityError(`Server ${server.name}, which reports wire version ${serverWireVersion}, does not support collation`));
           return;
         }
         if (serverWireVersion < 4) {
@@ -11004,10 +11004,10 @@ var require_find = __commonJS({
             return;
           }
           const findCommand2 = makeLegacyFindCommand(this.ns, this.filter, options);
-          if ((0, shared_1.isSharded)(server2) && this.readPreference) {
+          if ((0, shared_1.isSharded)(server) && this.readPreference) {
             findCommand2.$readPreference = this.readPreference.toJSON();
           }
-          server2.query(this.ns, findCommand2, __spreadProps(__spreadValues(__spreadValues({}, this.options), this.bsonOptions), {
+          server.query(this.ns, findCommand2, __spreadProps(__spreadValues(__spreadValues({}, this.options), this.bsonOptions), {
             documentsReturnedIn: "firstBatch",
             readPreference: this.readPreference
           }), callback);
@@ -11017,7 +11017,7 @@ var require_find = __commonJS({
         if (this.explain) {
           findCommand = (0, utils_1.decorateWithExplain)(findCommand, this.explain);
         }
-        server2.command(this.ns, findCommand, __spreadProps(__spreadValues(__spreadValues({}, this.options), this.bsonOptions), {
+        server.command(this.ns, findCommand, __spreadProps(__spreadValues(__spreadValues({}, this.options), this.bsonOptions), {
           documentsReturnedIn: "firstBatch",
           session
         }), callback);
@@ -11507,7 +11507,7 @@ var require_indexes = __commonJS({
         this.options = options;
         this.collection = collection;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const coll = this.collection;
         const options = this.options;
         (0, common_functions_1.indexInformation)(coll.s.db, coll.collectionName, __spreadProps(__spreadValues({ full: true }, options), { readPreference: this.readPreference, session }), callback);
@@ -11521,13 +11521,13 @@ var require_indexes = __commonJS({
         this.collectionName = collectionName;
         this.indexes = indexes;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const options = this.options;
         const indexes = this.indexes;
-        const serverWireVersion = (0, utils_1.maxWireVersion)(server2);
+        const serverWireVersion = (0, utils_1.maxWireVersion)(server);
         for (let i = 0; i < indexes.length; i++) {
           if (indexes[i].collation && serverWireVersion < 5) {
-            callback(new error_1.MongoCompatibilityError(`Server ${server2.name}, which reports wire version ${serverWireVersion}, does not support collation`));
+            callback(new error_1.MongoCompatibilityError(`Server ${server.name}, which reports wire version ${serverWireVersion}, does not support collation`));
             return;
           }
           if (indexes[i].name == null) {
@@ -11547,7 +11547,7 @@ var require_indexes = __commonJS({
           cmd.commitQuorum = options.commitQuorum;
         }
         this.options.collation = void 0;
-        super.executeCommand(server2, session, cmd, (err) => {
+        super.executeCommand(server, session, cmd, (err) => {
           if (err) {
             callback(err);
             return;
@@ -11562,8 +11562,8 @@ var require_indexes = __commonJS({
       constructor(parent, collectionName, indexSpec, options) {
         super(parent, collectionName, [makeIndexSpec(indexSpec, options)], options);
       }
-      execute(server2, session, callback) {
-        super.execute(server2, session, (err, indexNames) => {
+      execute(server, session, callback) {
+        super.execute(server, session, (err, indexNames) => {
           if (err || !indexNames)
             return callback(err);
           return callback(void 0, indexNames[0]);
@@ -11578,7 +11578,7 @@ var require_indexes = __commonJS({
         this.db = db;
         this.collectionName = collectionName;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const indexName = this.indexes[0].name;
         const cursor = this.db.collection(this.collectionName).listIndexes({ session });
         cursor.toArray((err, indexes) => {
@@ -11592,7 +11592,7 @@ var require_indexes = __commonJS({
               return;
             }
           }
-          super.execute(server2, session, callback);
+          super.execute(server, session, callback);
         });
       }
     };
@@ -11604,9 +11604,9 @@ var require_indexes = __commonJS({
         this.collection = collection;
         this.indexName = indexName;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const cmd = { dropIndexes: this.collection.collectionName, index: this.indexName };
-        super.executeCommand(server2, session, cmd, callback);
+        super.executeCommand(server, session, cmd, callback);
       }
     };
     exports2.DropIndexOperation = DropIndexOperation;
@@ -11614,8 +11614,8 @@ var require_indexes = __commonJS({
       constructor(collection, options) {
         super(collection, "*", options);
       }
-      execute(server2, session, callback) {
-        super.execute(server2, session, (err) => {
+      execute(server, session, callback) {
+        super.execute(server, session, (err) => {
           if (err)
             return callback(err, false);
           callback(void 0, true);
@@ -11629,16 +11629,16 @@ var require_indexes = __commonJS({
         this.options = options !== null && options !== void 0 ? options : {};
         this.collectionNamespace = collection.s.namespace;
       }
-      execute(server2, session, callback) {
-        const serverWireVersion = (0, utils_1.maxWireVersion)(server2);
+      execute(server, session, callback) {
+        const serverWireVersion = (0, utils_1.maxWireVersion)(server);
         if (serverWireVersion < LIST_INDEXES_WIRE_VERSION) {
           const systemIndexesNS = this.collectionNamespace.withCollection("system.indexes");
           const collectionNS = this.collectionNamespace.toString();
-          server2.query(systemIndexesNS, { query: { ns: collectionNS } }, __spreadProps(__spreadValues({}, this.options), { readPreference: this.readPreference }), callback);
+          server.query(systemIndexesNS, { query: { ns: collectionNS } }, __spreadProps(__spreadValues({}, this.options), { readPreference: this.readPreference }), callback);
           return;
         }
         const cursor = this.options.batchSize ? { batchSize: this.options.batchSize } : {};
-        super.executeCommand(server2, session, { listIndexes: this.collectionNamespace.collection, cursor }, callback);
+        super.executeCommand(server, session, { listIndexes: this.collectionNamespace.collection, cursor }, callback);
       }
     };
     exports2.ListIndexesOperation = ListIndexesOperation;
@@ -11670,7 +11670,7 @@ var require_indexes = __commonJS({
         this.collection = collection;
         this.indexes = indexes;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const coll = this.collection;
         const indexes = this.indexes;
         (0, common_functions_1.indexInformation)(coll.s.db, coll.collectionName, __spreadProps(__spreadValues({}, this.options), { readPreference: this.readPreference, session }), (err, indexInformation) => {
@@ -11695,7 +11695,7 @@ var require_indexes = __commonJS({
         this.db = db;
         this.name = name;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const db = this.db;
         const name = this.name;
         (0, common_functions_1.indexInformation)(db, name, __spreadProps(__spreadValues({}, this.options), { readPreference: this.readPreference, session }), callback);
@@ -11755,8 +11755,8 @@ var require_list_collections = __commonJS({
           this.batchSize = this.options.batchSize;
         }
       }
-      execute(server2, session, callback) {
-        if ((0, utils_1.maxWireVersion)(server2) < LIST_COLLECTIONS_WIRE_VERSION) {
+      execute(server, session, callback) {
+        if ((0, utils_1.maxWireVersion)(server) < LIST_COLLECTIONS_WIRE_VERSION) {
           let filter = this.filter;
           const databaseName = this.db.s.namespace.db;
           if (typeof filter.name === "string" && !new RegExp(`^${databaseName}\\.`).test(filter.name)) {
@@ -11779,7 +11779,7 @@ var require_list_collections = __commonJS({
             }
             return doc;
           };
-          server2.query(new utils_1.MongoDBNamespace(databaseName, CONSTANTS.SYSTEM_NAMESPACE_COLLECTION), { query: filter }, { batchSize: this.batchSize || 1e3, readPreference: this.readPreference }, (err, result) => {
+          server.query(new utils_1.MongoDBNamespace(databaseName, CONSTANTS.SYSTEM_NAMESPACE_COLLECTION), { query: filter }, { batchSize: this.batchSize || 1e3, readPreference: this.readPreference }, (err, result) => {
             if (result && result.documents && Array.isArray(result.documents)) {
               result.documents = result.documents.map(documentTransform);
             }
@@ -11787,7 +11787,7 @@ var require_list_collections = __commonJS({
           });
           return;
         }
-        return super.executeCommand(server2, session, this.generateCommand(), callback);
+        return super.executeCommand(server, session, this.generateCommand(), callback);
       }
       generateCommand() {
         return {
@@ -11849,7 +11849,7 @@ var require_add_user = __commonJS({
         this.password = password;
         this.options = options !== null && options !== void 0 ? options : {};
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const db = this.db;
         const username = this.username;
         const password = this.password;
@@ -11884,7 +11884,7 @@ var require_add_user = __commonJS({
         if (typeof password === "string") {
           command.pwd = userPassword;
         }
-        super.executeCommand(server2, session, command, callback);
+        super.executeCommand(server, session, command, callback);
       }
     };
     exports2.AddUserOperation = AddUserOperation;
@@ -11906,8 +11906,8 @@ var require_remove_user = __commonJS({
         this.options = options;
         this.username = username;
       }
-      execute(server2, session, callback) {
-        super.executeCommand(server2, session, { dropUser: this.username }, (err) => {
+      execute(server, session, callback) {
+        super.executeCommand(server, session, { dropUser: this.username }, (err) => {
           callback(err, err ? false : true);
         });
       }
@@ -11939,9 +11939,9 @@ var require_validate_collection = __commonJS({
         this.command = command;
         this.collectionName = collectionName;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const collectionName = this.collectionName;
-        super.executeCommand(server2, session, this.command, (err, doc) => {
+        super.executeCommand(server, session, this.command, (err, doc) => {
           if (err != null)
             return callback(err);
           if (doc.ok === 0)
@@ -11975,7 +11975,7 @@ var require_list_databases = __commonJS({
         this.options = options !== null && options !== void 0 ? options : {};
         this.ns = new utils_1.MongoDBNamespace("admin", "$cmd");
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const cmd = { listDatabases: 1 };
         if (this.options.nameOnly) {
           cmd.nameOnly = Number(cmd.nameOnly);
@@ -11986,7 +11986,7 @@ var require_list_databases = __commonJS({
         if (typeof this.options.authorizedDatabases === "boolean") {
           cmd.authorizedDatabases = this.options.authorizedDatabases;
         }
-        super.executeCommand(server2, session, cmd, callback);
+        super.executeCommand(server, session, cmd, callback);
       }
     };
     exports2.ListDatabasesOperation = ListDatabasesOperation;
@@ -12100,7 +12100,7 @@ var require_bulk_write = __commonJS({
         this.collection = collection;
         this.operations = operations;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const coll = this.collection;
         const operations = this.operations;
         const options = __spreadProps(__spreadValues(__spreadValues({}, this.options), this.bsonOptions), { readPreference: this.readPreference });
@@ -12145,7 +12145,7 @@ var require_insert = __commonJS({
         this.ns = ns;
         this.documents = documents;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         var _a;
         const options = (_a = this.options) !== null && _a !== void 0 ? _a : {};
         const ordered = typeof options.ordered === "boolean" ? options.ordered : true;
@@ -12160,7 +12160,7 @@ var require_insert = __commonJS({
         if (options.comment != null) {
           command.comment = options.comment;
         }
-        super.executeCommand(server2, session, command, callback);
+        super.executeCommand(server, session, command, callback);
       }
     };
     exports2.InsertOperation = InsertOperation;
@@ -12168,8 +12168,8 @@ var require_insert = __commonJS({
       constructor(collection, doc, options) {
         super(collection.s.namespace, (0, common_functions_1.prepareDocs)(collection, [doc], options), options);
       }
-      execute(server2, session, callback) {
-        super.execute(server2, session, (err, res) => {
+      execute(server, session, callback) {
+        super.execute(server, session, (err, res) => {
           var _a, _b;
           if (err || res == null)
             return callback(err);
@@ -12196,12 +12196,12 @@ var require_insert = __commonJS({
         this.collection = collection;
         this.docs = docs;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const coll = this.collection;
         const options = __spreadProps(__spreadValues(__spreadValues({}, this.options), this.bsonOptions), { readPreference: this.readPreference });
         const writeConcern = write_concern_1.WriteConcern.fromOptions(options);
         const bulkWriteOperation = new bulk_write_1.BulkWriteOperation(coll, (0, common_functions_1.prepareDocs)(coll, this.docs, options).map((document2) => ({ insertOne: { document: document2 } })), options);
-        bulkWriteOperation.execute(server2, session, (err, res) => {
+        bulkWriteOperation.execute(server, session, (err, res) => {
           var _a;
           if (err || res == null)
             return callback(err);
@@ -12243,7 +12243,7 @@ var require_update = __commonJS({
         }
         return this.statements.every((op) => op.multi == null || op.multi === false);
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         var _a;
         const options = (_a = this.options) !== null && _a !== void 0 ? _a : {};
         const ordered = typeof options.ordered === "boolean" ? options.ordered : true;
@@ -12259,26 +12259,26 @@ var require_update = __commonJS({
           command.let = options.let;
         }
         const statementWithCollation = this.statements.find((statement) => !!statement.collation);
-        if ((0, utils_1.collationNotSupported)(server2, options) || statementWithCollation && (0, utils_1.collationNotSupported)(server2, statementWithCollation)) {
-          callback(new error_1.MongoCompatibilityError(`Server ${server2.name} does not support collation`));
+        if ((0, utils_1.collationNotSupported)(server, options) || statementWithCollation && (0, utils_1.collationNotSupported)(server, statementWithCollation)) {
+          callback(new error_1.MongoCompatibilityError(`Server ${server.name} does not support collation`));
           return;
         }
         const unacknowledgedWrite = this.writeConcern && this.writeConcern.w === 0;
-        if (unacknowledgedWrite || (0, utils_1.maxWireVersion)(server2) < 5) {
+        if (unacknowledgedWrite || (0, utils_1.maxWireVersion)(server) < 5) {
           if (this.statements.find((o) => o.hint)) {
             callback(new error_1.MongoCompatibilityError(`Servers < 3.4 do not support hint on update`));
             return;
           }
         }
-        if (this.explain && (0, utils_1.maxWireVersion)(server2) < 3) {
-          callback(new error_1.MongoCompatibilityError(`Server ${server2.name} does not support explain on update`));
+        if (this.explain && (0, utils_1.maxWireVersion)(server) < 3) {
+          callback(new error_1.MongoCompatibilityError(`Server ${server.name} does not support explain on update`));
           return;
         }
-        if (this.statements.some((statement) => !!statement.arrayFilters) && (0, utils_1.maxWireVersion)(server2) < 6) {
+        if (this.statements.some((statement) => !!statement.arrayFilters) && (0, utils_1.maxWireVersion)(server) < 6) {
           callback(new error_1.MongoCompatibilityError('Option "arrayFilters" is only supported on MongoDB 3.6+'));
           return;
         }
-        super.executeCommand(server2, session, command, callback);
+        super.executeCommand(server, session, command, callback);
       }
     };
     exports2.UpdateOperation = UpdateOperation;
@@ -12289,8 +12289,8 @@ var require_update = __commonJS({
           throw new error_1.MongoInvalidArgumentError("Update document requires atomic operators");
         }
       }
-      execute(server2, session, callback) {
-        super.execute(server2, session, (err, res) => {
+      execute(server, session, callback) {
+        super.execute(server, session, (err, res) => {
           var _a, _b;
           if (err || !res)
             return callback(err);
@@ -12318,8 +12318,8 @@ var require_update = __commonJS({
           throw new error_1.MongoInvalidArgumentError("Update document requires atomic operators");
         }
       }
-      execute(server2, session, callback) {
-        super.execute(server2, session, (err, res) => {
+      execute(server, session, callback) {
+        super.execute(server, session, (err, res) => {
           var _a, _b;
           if (err || !res)
             return callback(err);
@@ -12347,8 +12347,8 @@ var require_update = __commonJS({
           throw new error_1.MongoInvalidArgumentError("Replacement document must not contain atomic operators");
         }
       }
-      execute(server2, session, callback) {
-        super.execute(server2, session, (err, res) => {
+      execute(server, session, callback) {
+        super.execute(server, session, (err, res) => {
           var _a, _b;
           if (err || !res)
             return callback(err);
@@ -12438,7 +12438,7 @@ var require_delete = __commonJS({
         }
         return this.statements.every((op) => op.limit != null ? op.limit > 0 : true);
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         var _a;
         const options = (_a = this.options) !== null && _a !== void 0 ? _a : {};
         const ordered = typeof options.ordered === "boolean" ? options.ordered : true;
@@ -12450,22 +12450,22 @@ var require_delete = __commonJS({
         if (options.let) {
           command.let = options.let;
         }
-        if (options.explain != null && (0, utils_1.maxWireVersion)(server2) < 3) {
-          return callback ? callback(new error_1.MongoCompatibilityError(`Server ${server2.name} does not support explain on delete`)) : void 0;
+        if (options.explain != null && (0, utils_1.maxWireVersion)(server) < 3) {
+          return callback ? callback(new error_1.MongoCompatibilityError(`Server ${server.name} does not support explain on delete`)) : void 0;
         }
         const unacknowledgedWrite = this.writeConcern && this.writeConcern.w === 0;
-        if (unacknowledgedWrite || (0, utils_1.maxWireVersion)(server2) < 5) {
+        if (unacknowledgedWrite || (0, utils_1.maxWireVersion)(server) < 5) {
           if (this.statements.find((o) => o.hint)) {
             callback(new error_1.MongoCompatibilityError(`Servers < 3.4 do not support hint on delete`));
             return;
           }
         }
         const statementWithCollation = this.statements.find((statement) => !!statement.collation);
-        if (statementWithCollation && (0, utils_1.collationNotSupported)(server2, statementWithCollation)) {
-          callback(new error_1.MongoCompatibilityError(`Server ${server2.name} does not support collation`));
+        if (statementWithCollation && (0, utils_1.collationNotSupported)(server, statementWithCollation)) {
+          callback(new error_1.MongoCompatibilityError(`Server ${server.name} does not support collation`));
           return;
         }
-        super.executeCommand(server2, session, command, callback);
+        super.executeCommand(server, session, command, callback);
       }
     };
     exports2.DeleteOperation = DeleteOperation;
@@ -12473,8 +12473,8 @@ var require_delete = __commonJS({
       constructor(collection, filter, options) {
         super(collection.s.namespace, [makeDeleteStatement(filter, __spreadProps(__spreadValues({}, options), { limit: 1 }))], options);
       }
-      execute(server2, session, callback) {
-        super.execute(server2, session, (err, res) => {
+      execute(server, session, callback) {
+        super.execute(server, session, (err, res) => {
           var _a, _b;
           if (err || res == null)
             return callback(err);
@@ -12496,8 +12496,8 @@ var require_delete = __commonJS({
       constructor(collection, filter, options) {
         super(collection.s.namespace, [makeDeleteStatement(filter, options)], options);
       }
-      execute(server2, session, callback) {
-        super.execute(server2, session, (err, res) => {
+      execute(server, session, callback) {
+        super.execute(server, session, (err, res) => {
           var _a, _b;
           if (err || res == null)
             return callback(err);
@@ -13910,14 +13910,14 @@ var require_change_stream = __commonJS({
           if (err || response == null) {
             return callback(err);
           }
-          const server2 = aggregateOperation.server;
-          if (this.startAtOperationTime == null && this.resumeAfter == null && this.startAfter == null && (0, utils_1.maxWireVersion)(server2) >= 7) {
+          const server = aggregateOperation.server;
+          if (this.startAtOperationTime == null && this.resumeAfter == null && this.startAfter == null && (0, utils_1.maxWireVersion)(server) >= 7) {
             this.startAtOperationTime = response.operationTime;
           }
           this._processBatch("firstBatch", response);
           this.emit(ChangeStream.INIT, response);
           this.emit(ChangeStream.RESPONSE);
-          callback(void 0, { server: server2, session, response });
+          callback(void 0, { server, session, response });
         });
       }
       _getMore(batchSize, callback) {
@@ -14122,8 +14122,8 @@ var require_count_documents = __commonJS({
         pipeline.push({ $group: { _id: 1, n: { $sum: 1 } } });
         super(collection.s.namespace, pipeline, options);
       }
-      execute(server2, session, callback) {
-        super.execute(server2, session, (err, result) => {
+      execute(server, session, callback) {
+        super.execute(server, session, (err, result) => {
           if (err || !result) {
             callback(err);
             return;
@@ -14160,7 +14160,7 @@ var require_distinct = __commonJS({
         this.key = key;
         this.query = query;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const coll = this.collection;
         const key = this.key;
         const query = this.query;
@@ -14179,11 +14179,11 @@ var require_distinct = __commonJS({
         } catch (err) {
           return callback(err);
         }
-        if (this.explain && (0, utils_1.maxWireVersion)(server2) < 4) {
-          callback(new error_1.MongoCompatibilityError(`Server ${server2.name} does not support explain on distinct`));
+        if (this.explain && (0, utils_1.maxWireVersion)(server) < 4) {
+          callback(new error_1.MongoCompatibilityError(`Server ${server.name} does not support explain on distinct`));
           return;
         }
-        super.executeCommand(server2, session, cmd, (err, result) => {
+        super.executeCommand(server, session, cmd, (err, result) => {
           if (err) {
             callback(err);
             return;
@@ -14211,8 +14211,8 @@ var require_drop = __commonJS({
         this.options = options;
         this.name = name;
       }
-      execute(server2, session, callback) {
-        super.executeCommand(server2, session, { drop: this.name }, (err, result) => {
+      execute(server, session, callback) {
+        super.executeCommand(server, session, { drop: this.name }, (err, result) => {
           if (err)
             return callback(err);
           if (result.ok)
@@ -14227,8 +14227,8 @@ var require_drop = __commonJS({
         super(db, options);
         this.options = options;
       }
-      execute(server2, session, callback) {
-        super.executeCommand(server2, session, { dropDatabase: 1 }, (err, result) => {
+      execute(server, session, callback) {
+        super.executeCommand(server, session, { dropDatabase: 1 }, (err, result) => {
           if (err)
             return callback(err);
           if (result.ok)
@@ -14258,16 +14258,16 @@ var require_estimated_document_count = __commonJS({
         this.options = options;
         this.collectionName = collection.collectionName;
       }
-      execute(server2, session, callback) {
-        if ((0, utils_1.maxWireVersion)(server2) < 12) {
-          return this.executeLegacy(server2, session, callback);
+      execute(server, session, callback) {
+        if ((0, utils_1.maxWireVersion)(server) < 12) {
+          return this.executeLegacy(server, session, callback);
         }
         const pipeline = [{ $collStats: { count: {} } }, { $group: { _id: 1, n: { $sum: "$count" } } }];
         const cmd = { aggregate: this.collectionName, pipeline, cursor: {} };
         if (typeof this.options.maxTimeMS === "number") {
           cmd.maxTimeMS = this.options.maxTimeMS;
         }
-        super.executeCommand(server2, session, cmd, (err, response) => {
+        super.executeCommand(server, session, cmd, (err, response) => {
           var _a, _b;
           if (err && err.code !== 26) {
             callback(err);
@@ -14276,12 +14276,12 @@ var require_estimated_document_count = __commonJS({
           callback(void 0, ((_b = (_a = response === null || response === void 0 ? void 0 : response.cursor) === null || _a === void 0 ? void 0 : _a.firstBatch[0]) === null || _b === void 0 ? void 0 : _b.n) || 0);
         });
       }
-      executeLegacy(server2, session, callback) {
+      executeLegacy(server, session, callback) {
         const cmd = { count: this.collectionName };
         if (typeof this.options.maxTimeMS === "number") {
           cmd.maxTimeMS = this.options.maxTimeMS;
         }
-        super.executeCommand(server2, session, cmd, (err, response) => {
+        super.executeCommand(server, session, cmd, (err, response) => {
           if (err) {
             callback(err);
             return;
@@ -14352,7 +14352,7 @@ var require_find_and_modify = __commonJS({
         this.collection = collection;
         this.query = query;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         var _a;
         const coll = this.collection;
         const query = this.query;
@@ -14368,17 +14368,17 @@ var require_find_and_modify = __commonJS({
         }
         if (options.hint) {
           const unacknowledgedWrite = ((_a = this.writeConcern) === null || _a === void 0 ? void 0 : _a.w) === 0;
-          if (unacknowledgedWrite || (0, utils_1.maxWireVersion)(server2) < 8) {
+          if (unacknowledgedWrite || (0, utils_1.maxWireVersion)(server) < 8) {
             callback(new error_1.MongoCompatibilityError("The current topology does not support a hint on findAndModify commands"));
             return;
           }
           cmd.hint = options.hint;
         }
-        if (this.explain && (0, utils_1.maxWireVersion)(server2) < 4) {
-          callback(new error_1.MongoCompatibilityError(`Server ${server2.name} does not support explain on findAndModify`));
+        if (this.explain && (0, utils_1.maxWireVersion)(server) < 4) {
+          callback(new error_1.MongoCompatibilityError(`Server ${server.name} does not support explain on findAndModify`));
           return;
         }
-        super.executeCommand(server2, session, cmd, (err, result) => {
+        super.executeCommand(server, session, cmd, (err, result) => {
           if (err)
             return callback(err);
           return callback(void 0, result);
@@ -14454,7 +14454,7 @@ var require_is_capped = __commonJS({
         this.options = options;
         this.collection = collection;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const coll = this.collection;
         coll.s.db.listCollections({ name: coll.collectionName }, __spreadProps(__spreadValues({}, this.options), { nameOnly: false, readPreference: this.readPreference, session })).toArray((err, collections) => {
           if (err || !collections)
@@ -14509,7 +14509,7 @@ var require_map_reduce = __commonJS({
         this.map = map;
         this.reduce = reduce;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const coll = this.collection;
         const map = this.map;
         const reduce = this.reduce;
@@ -14542,11 +14542,11 @@ var require_map_reduce = __commonJS({
         } catch (err) {
           return callback(err);
         }
-        if (this.explain && (0, utils_1.maxWireVersion)(server2) < 9) {
-          callback(new error_1.MongoCompatibilityError(`Server ${server2.name} does not support explain on mapReduce`));
+        if (this.explain && (0, utils_1.maxWireVersion)(server) < 9) {
+          callback(new error_1.MongoCompatibilityError(`Server ${server.name} does not support explain on mapReduce`));
           return;
         }
-        super.executeCommand(server2, session, mapCommandHash, (err, result) => {
+        super.executeCommand(server, session, mapCommandHash, (err, result) => {
           if (err)
             return callback(err);
           if (result.ok !== 1 || result.err || result.errmsg) {
@@ -14616,7 +14616,7 @@ var require_options_operation = __commonJS({
         this.options = options;
         this.collection = collection;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const coll = this.collection;
         coll.s.db.listCollections({ name: coll.collectionName }, __spreadProps(__spreadValues({}, this.options), { nameOnly: false, readPreference: this.readPreference, session })).toArray((err, collections) => {
           if (err || !collections)
@@ -14655,9 +14655,9 @@ var require_rename = __commonJS({
         this.collection = collection;
         this.newName = newName;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const coll = this.collection;
-        super.execute(server2, session, (err, doc) => {
+        super.execute(server, session, (err, doc) => {
           if (err)
             return callback(err);
           if (doc.errmsg) {
@@ -14692,12 +14692,12 @@ var require_stats = __commonJS({
         this.options = options !== null && options !== void 0 ? options : {};
         this.collectionName = collection.collectionName;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const command = { collStats: this.collectionName };
         if (this.options.scale != null) {
           command.scale = this.options.scale;
         }
-        super.executeCommand(server2, session, command, callback);
+        super.executeCommand(server, session, command, callback);
       }
     };
     exports2.CollStatsOperation = CollStatsOperation;
@@ -14706,12 +14706,12 @@ var require_stats = __commonJS({
         super(db, options);
         this.options = options;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const command = { dbStats: true };
         if (this.options.scale != null) {
           command.scale = this.options.scale;
         }
-        super.executeCommand(server2, session, command, callback);
+        super.executeCommand(server, session, command, callback);
       }
     };
     exports2.DbStatsOperation = DbStatsOperation;
@@ -15256,7 +15256,7 @@ var require_collections = __commonJS({
         this.options = options;
         this.db = db;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const db = this.db;
         db.listCollections({}, __spreadProps(__spreadValues({}, this.options), { nameOnly: true, readPreference: this.readPreference, session })).toArray((err, documents) => {
           if (err || !documents)
@@ -15309,7 +15309,7 @@ var require_create_collection = __commonJS({
         this.db = db;
         this.name = name;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const db = this.db;
         const name = this.name;
         const options = this.options;
@@ -15325,7 +15325,7 @@ var require_create_collection = __commonJS({
             cmd[n] = options[n];
           }
         }
-        super.executeCommand(server2, session, cmd, done);
+        super.executeCommand(server, session, cmd, done);
       }
     };
     exports2.CreateCollectionOperation = CreateCollectionOperation;
@@ -15346,8 +15346,8 @@ var require_profiling_level = __commonJS({
         super(db, options);
         this.options = options;
       }
-      execute(server2, session, callback) {
-        super.executeCommand(server2, session, { profile: -1 }, (err, doc) => {
+      execute(server, session, callback) {
+        super.executeCommand(server, session, { profile: -1 }, (err, doc) => {
           if (err == null && doc.ok === 1) {
             const was = doc.was;
             if (was === 0)
@@ -15402,12 +15402,12 @@ var require_set_profiling_level = __commonJS({
         }
         this.level = level;
       }
-      execute(server2, session, callback) {
+      execute(server, session, callback) {
         const level = this.level;
         if (!levelValues.has(level)) {
           return callback(new error_1.MongoInvalidArgumentError(`Profiling level must be one of "${(0, utils_1.enumToString)(exports2.ProfilingLevel)}"`));
         }
-        super.executeCommand(server2, session, { profile: this.profile }, (err, doc) => {
+        super.executeCommand(server, session, { profile: this.profile }, (err, doc) => {
           if (err == null && doc.ok === 1)
             return callback(void 0, level);
           return err != null ? callback(err) : callback(new error_1.MongoRuntimeError("Error with profile command"));
@@ -17415,10 +17415,10 @@ var require_monitor = __commonJS({
       return monitor.s.state === common_1.STATE_CLOSED || monitor.s.state === common_1.STATE_CLOSING;
     }
     var Monitor = class extends mongo_types_1.TypedEventEmitter {
-      constructor(server2, options) {
+      constructor(server, options) {
         var _a, _b, _c;
         super();
-        this[kServer] = server2;
+        this[kServer] = server;
         this[kConnection] = void 0;
         this[kCancellationToken] = new mongo_types_1.CancellationToken();
         this[kCancellationToken].setMaxListeners(Infinity);
@@ -17426,7 +17426,7 @@ var require_monitor = __commonJS({
         this.s = {
           state: common_1.STATE_CLOSED
         };
-        this.address = server2.description.address;
+        this.address = server.description.address;
         this.options = Object.freeze({
           connectTimeoutMS: (_a = options.connectTimeoutMS) !== null && _a !== void 0 ? _a : 1e4,
           heartbeatFrequencyMS: (_b = options.heartbeatFrequencyMS) !== null && _b !== void 0 ? _b : 1e4,
@@ -17435,10 +17435,10 @@ var require_monitor = __commonJS({
         const cancellationToken = this[kCancellationToken];
         const connectOptions = Object.assign({
           id: "<monitor>",
-          generation: server2.s.pool.generation,
+          generation: server.s.pool.generation,
           connectionType: connection_1.Connection,
           cancellationToken,
-          hostAddress: server2.description.hostAddress
+          hostAddress: server.description.hostAddress
         }, options, {
           raw: false,
           promoteLongs: true,
@@ -17907,16 +17907,16 @@ var require_server = __commonJS({
       const alpha = 0.2;
       return alpha * duration + (1 - alpha) * oldRtt;
     }
-    function markServerUnknown(server2, error) {
-      if (server2.loadBalanced) {
+    function markServerUnknown(server, error) {
+      if (server.loadBalanced) {
         return;
       }
       if (error instanceof error_1.MongoNetworkError && !(error instanceof error_1.MongoNetworkTimeoutError)) {
-        server2[kMonitor].reset();
+        server[kMonitor].reset();
       }
-      server2.emit(Server.DESCRIPTION_RECEIVED, new server_description_1.ServerDescription(server2.description.hostAddress, void 0, {
+      server.emit(Server.DESCRIPTION_RECEIVED, new server_description_1.ServerDescription(server.description.hostAddress, void 0, {
         error,
-        topologyVersion: error && error.topologyVersion ? error.topologyVersion : server2.description.topologyVersion
+        topologyVersion: error && error.topologyVersion ? error.topologyVersion : server.description.topologyVersion
       }));
     }
     function isPinnableCommand(cmd, session) {
@@ -17931,9 +17931,9 @@ var require_server = __commonJS({
       }
       return connection.generation !== pool.generation;
     }
-    function shouldHandleStateChangeError(server2, err) {
+    function shouldHandleStateChangeError(server, err) {
       const etv = err.topologyVersion;
-      const stv = server2.description.topologyVersion;
+      const stv = server.description.topologyVersion;
       return (0, server_description_1.compareTopologyVersion)(stv, etv) < 0;
     }
     function inActiveTransaction(session, cmd) {
@@ -17942,10 +17942,10 @@ var require_server = __commonJS({
     function isRetryableWritesEnabled(topology) {
       return topology.s.options.retryWrites !== false;
     }
-    function makeOperationHandler(server2, connection, cmd, options, callback) {
+    function makeOperationHandler(server, connection, cmd, options, callback) {
       const session = options === null || options === void 0 ? void 0 : options.session;
       return function handleOperationResult(err, result) {
-        if (err && !connectionIsStale(server2.s.pool, connection)) {
+        if (err && !connectionIsStale(server.s.pool, connection)) {
           if (err instanceof error_1.MongoNetworkError) {
             if (session && !session.hasEnded && session.serverSession) {
               session.serverSession.isDirty = true;
@@ -17953,27 +17953,27 @@ var require_server = __commonJS({
             if (inActiveTransaction(session, cmd) && !err.hasErrorLabel("TransientTransactionError")) {
               err.addErrorLabel("TransientTransactionError");
             }
-            if ((isRetryableWritesEnabled(server2.s.topology) || (0, transactions_1.isTransactionCommand)(cmd)) && (0, utils_2.supportsRetryableWrites)(server2) && !inActiveTransaction(session, cmd)) {
+            if ((isRetryableWritesEnabled(server.s.topology) || (0, transactions_1.isTransactionCommand)(cmd)) && (0, utils_2.supportsRetryableWrites)(server) && !inActiveTransaction(session, cmd)) {
               err.addErrorLabel("RetryableWriteError");
             }
             if (!(err instanceof error_1.MongoNetworkTimeoutError) || (0, error_1.isNetworkErrorBeforeHandshake)(err)) {
-              server2.s.pool.clear(connection.serviceId);
-              if (!server2.loadBalanced) {
-                markServerUnknown(server2, err);
+              server.s.pool.clear(connection.serviceId);
+              if (!server.loadBalanced) {
+                markServerUnknown(server, err);
               }
             }
           } else {
-            if ((isRetryableWritesEnabled(server2.s.topology) || (0, transactions_1.isTransactionCommand)(cmd)) && (0, utils_1.maxWireVersion)(server2) < 9 && (0, error_1.isRetryableWriteError)(err) && !inActiveTransaction(session, cmd)) {
+            if ((isRetryableWritesEnabled(server.s.topology) || (0, transactions_1.isTransactionCommand)(cmd)) && (0, utils_1.maxWireVersion)(server) < 9 && (0, error_1.isRetryableWriteError)(err) && !inActiveTransaction(session, cmd)) {
               err.addErrorLabel("RetryableWriteError");
             }
             if ((0, error_1.isSDAMUnrecoverableError)(err)) {
-              if (shouldHandleStateChangeError(server2, err)) {
-                if ((0, utils_1.maxWireVersion)(server2) <= 7 || (0, error_1.isNodeShuttingDownError)(err)) {
-                  server2.s.pool.clear(connection.serviceId);
+              if (shouldHandleStateChangeError(server, err)) {
+                if ((0, utils_1.maxWireVersion)(server) <= 7 || (0, error_1.isNodeShuttingDownError)(err)) {
+                  server.s.pool.clear(connection.serviceId);
                 }
-                if (!server2.loadBalanced) {
-                  markServerUnknown(server2, err);
-                  process.nextTick(() => server2.requestCheck());
+                if (!server.loadBalanced) {
+                  markServerUnknown(server, err);
+                  process.nextTick(() => server.requestCheck());
                 }
               }
             }
@@ -22646,14 +22646,14 @@ var require_topology = __commonJS({
           }
         }
         const readPreference = (_a = options.readPreference) !== null && _a !== void 0 ? _a : read_preference_1.ReadPreference.primary;
-        this.selectServer((0, server_selection_1.readPreferenceServerSelector)(readPreference), options, (err, server2) => {
+        this.selectServer((0, server_selection_1.readPreferenceServerSelector)(readPreference), options, (err, server) => {
           if (err) {
             this.close();
             typeof callback === "function" ? callback(err) : this.emit(Topology.ERROR, err);
             return;
           }
-          if (server2 && this.s.credentials) {
-            server2.command((0, utils_1.ns)("admin.$cmd"), { ping: 1 }, (err2) => {
+          if (server && this.s.credentials) {
+            server.command((0, utils_1.ns)("admin.$cmd"), { ping: 1 }, (err2) => {
               if (err2) {
                 typeof callback === "function" ? callback(err2) : this.emit(Topology.ERROR, err2);
                 return;
@@ -22698,7 +22698,7 @@ var require_topology = __commonJS({
         this.removeListener(Topology.TOPOLOGY_DESCRIPTION_CHANGED, this.s.detectShardedTopology);
         (0, utils_1.eachAsync)(Array.from(this.s.sessions.values()), (session, cb) => session.endSession(cb), () => {
           this.s.sessionPool.endAllPooledSessions(() => {
-            (0, utils_1.eachAsync)(Array.from(this.s.servers.values()), (server2, cb) => destroyServer(server2, this, options, cb), (err) => {
+            (0, utils_1.eachAsync)(Array.from(this.s.servers.values()), (server, cb) => destroyServer(server, this, options, cb), (err) => {
               this.s.servers.clear();
               this.emit(Topology.TOPOLOGY_CLOSED, new events_1.TopologyClosedEvent(this.s.id));
               stateTransition(this, common_1.STATE_CLOSED);
@@ -22778,13 +22778,13 @@ var require_topology = __commonJS({
         if (!Array.isArray(sessions)) {
           sessions = [sessions];
         }
-        this.selectServer((0, server_selection_1.readPreferenceServerSelector)(read_preference_1.ReadPreference.primaryPreferred), (err, server2) => {
-          if (err || !server2) {
+        this.selectServer((0, server_selection_1.readPreferenceServerSelector)(read_preference_1.ReadPreference.primaryPreferred), (err, server) => {
+          if (err || !server) {
             if (typeof callback === "function")
               callback(err);
             return;
           }
-          server2.command((0, utils_1.ns)("admin.$cmd"), { endSessions: sessions }, { noResponse: true }, (err2, result) => {
+          server.command((0, utils_1.ns)("admin.$cmd"), { endSessions: sessions }, { noResponse: true }, (err2, result) => {
             if (typeof callback === "function")
               callback(err2, result);
           });
@@ -22888,15 +22888,15 @@ var require_topology = __commonJS({
       Topology.TIMEOUT,
       Topology.CLOSE
     ];
-    function destroyServer(server2, topology, options, callback) {
+    function destroyServer(server, topology, options, callback) {
       options = options !== null && options !== void 0 ? options : {};
       for (const event of LOCAL_SERVER_EVENTS) {
-        server2.removeAllListeners(event);
+        server.removeAllListeners(event);
       }
-      server2.destroy(options, () => {
-        topology.emit(Topology.SERVER_CLOSED, new events_1.ServerClosedEvent(topology.s.id, server2.description.address));
+      server.destroy(options, () => {
+        topology.emit(Topology.SERVER_CLOSED, new events_1.ServerClosedEvent(topology.s.id, server.description.address));
         for (const event of SERVER_RELAY_EVENTS) {
-          server2.removeAllListeners(event);
+          server.removeAllListeners(event);
         }
         if (typeof callback === "function") {
           callback();
@@ -22920,40 +22920,40 @@ var require_topology = __commonJS({
     }
     function createAndConnectServer(topology, serverDescription, connectDelay) {
       topology.emit(Topology.SERVER_OPENING, new events_1.ServerOpeningEvent(topology.s.id, serverDescription.address));
-      const server2 = new server_1.Server(topology, serverDescription, topology.s.options);
+      const server = new server_1.Server(topology, serverDescription, topology.s.options);
       for (const event of SERVER_RELAY_EVENTS) {
-        server2.on(event, (e) => topology.emit(event, e));
+        server.on(event, (e) => topology.emit(event, e));
       }
-      server2.on(server_1.Server.DESCRIPTION_RECEIVED, (description) => topology.serverUpdateHandler(description));
+      server.on(server_1.Server.DESCRIPTION_RECEIVED, (description) => topology.serverUpdateHandler(description));
       if (connectDelay) {
         const connectTimer = setTimeout(() => {
           (0, common_1.clearAndRemoveTimerFrom)(connectTimer, topology.s.connectionTimers);
-          server2.connect();
+          server.connect();
         }, connectDelay);
         topology.s.connectionTimers.add(connectTimer);
-        return server2;
+        return server;
       }
-      server2.connect();
-      return server2;
+      server.connect();
+      return server;
     }
     function connectServers(topology, serverDescriptions) {
       topology.s.servers = serverDescriptions.reduce((servers, serverDescription) => {
-        const server2 = createAndConnectServer(topology, serverDescription);
-        servers.set(serverDescription.address, server2);
+        const server = createAndConnectServer(topology, serverDescription);
+        servers.set(serverDescription.address, server);
         return servers;
       }, new Map());
     }
     function updateServers(topology, incomingServerDescription) {
       if (incomingServerDescription && topology.s.servers.has(incomingServerDescription.address)) {
-        const server2 = topology.s.servers.get(incomingServerDescription.address);
-        if (server2) {
-          server2.s.description = incomingServerDescription;
+        const server = topology.s.servers.get(incomingServerDescription.address);
+        if (server) {
+          server.s.description = incomingServerDescription;
         }
       }
       for (const serverDescription of topology.description.servers.values()) {
         if (!topology.s.servers.has(serverDescription.address)) {
-          const server2 = createAndConnectServer(topology, serverDescription);
-          topology.s.servers.set(serverDescription.address, server2);
+          const server = createAndConnectServer(topology, serverDescription);
+          topology.s.servers.set(serverDescription.address, server);
         }
       }
       for (const entry of topology.s.servers) {
@@ -22964,10 +22964,10 @@ var require_topology = __commonJS({
         if (!topology.s.servers.has(serverAddress)) {
           continue;
         }
-        const server2 = topology.s.servers.get(serverAddress);
+        const server = topology.s.servers.get(serverAddress);
         topology.s.servers.delete(serverAddress);
-        if (server2) {
-          destroyServer(server2, topology);
+        if (server) {
+          destroyServer(server, topology);
         }
       }
     }
@@ -23028,9 +23028,9 @@ var require_topology = __commonJS({
         waitQueueMember.callback(void 0, selectedServer);
       }
       if (topology[kWaitQueue].length > 0) {
-        for (const [, server2] of topology.s.servers) {
+        for (const [, server] of topology.s.servers) {
           process.nextTick(function scheduleServerCheck() {
-            return server2.requestCheck();
+            return server.requestCheck();
           });
         }
       }
@@ -40115,7 +40115,7 @@ var require_allServersUnknown = __commonJS({
         return false;
       }
       const servers = Array.from(topologyDescription.servers.values());
-      return servers.length > 0 && servers.every((server2) => server2.type === "Unknown");
+      return servers.length > 0 && servers.every((server) => server.type === "Unknown");
     };
   }
 });
@@ -51396,9 +51396,6 @@ var init_component_models = __esm({
 var import_mongoose2 = __toModule(require_mongoose());
 var { CPU: CPU2 } = (init_component_models(), component_models_exports);
 exports.handler = async (event, context) => {
-  const Client = import_mongoose2.default.connect(process.env.URI).exec().then(() => {
-    server.start();
-  }).catch(console.log);
   console.log(process.env.URI);
   console.log(event.body);
   const data = CPU2(JSON.parse(event.body));

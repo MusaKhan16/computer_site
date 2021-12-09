@@ -1,0 +1,123 @@
+.flex {
+    display: flex;
+    gap: var(--gap);
+}
+
+.items-centered {
+    justify-content: center;
+    align-items: center;
+}
+
+.justify-around {
+    justify-content: space-around;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.Head {
+    --gap: clamp(1rem, 5vw, 10rem);
+}
+
+.gap-200 {
+    --gap: clamp(2rem, 5vw, 10rem);
+}
+
+.gap-none {
+    --gap: 1rem;
+}
+
+.p-200 {
+    padding: 1rem 5rem 4em 5rem;
+}
+
+.m-200 {
+    margin: 1rem 5rem 4em 5rem;
+}
+
+.fl {
+    font-size: large;
+}
+
+.h-full {
+    height: 100%;
+}
+
+.scale-50 {
+    transform: scale(0.50);
+}
+
+.f-title {
+    font-size: clamp(1rem, 2vw, 3rem)
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.t-c {
+    text-align: center;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.align-around {
+    align-items: space-around;
+}
+
+.p-100 {
+    padding: .5em;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.w-1-5 {
+    width: 20%;
+}
+
+.title {
+    font-size: 2.5rem;
+}
+
+.neuro-morphic-out {
+    background: linear-gradient(145deg, #1d2023, #22272a);
+    color: var(--icon-color);
+    border-radius: 1em;
+    box-shadow:  
+    10px 10px 20px #171a1c,
+    -10px -10px 20px #292e32;  
+}
+
+.neuro-morphic-in {
+    color: var(--icon-color);
+    border-radius: 1em;
+    background: linear-gradient(145deg, #1c2022, #212529);
+    box-shadow:  1.5rem 1.8rem 3rem #15181a,
+            -1.5rem -1.8rem 3rem #2b3033;
+    transition: ease .3s all;
+}
+
+.neuro-morphic-in:hover {
+    color: gray;
+    box-shadow:  25px 25px 78px #101213,
+    -25px -25px 78px #363d42;
+}
+
+.underline {
+    border-bottom: 4px solid var(--icon-color); 
+}
+
+@media screen and (max-width: 1007px) {
+    .w-1-4 {
+        display: none;
+    }
+}

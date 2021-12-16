@@ -8,6 +8,10 @@
     align-items: center;
 }
 
+.justify-evenly {
+    justify-content:space-evenly;
+}
+
 .justify-around {
     justify-content: space-around;
 }
@@ -16,8 +20,22 @@
     align-items: center;
 }
 
+.grid-align-end {
+    justify-self: end;
+    align-self: end;
+}
+
+.grid-align-start {
+    justify-self: start;
+    align-self: start;
+  }
+
 .w-full {
     width: 100%;
+}
+
+.w-4-6 {
+    width: 80%;
 }
 
 .Head {
@@ -33,11 +51,15 @@
 }
 
 .p-200 {
-    padding: 1rem 5rem 4em 5rem;
+    padding: 2rem;
 }
 
 .m-200 {
-    margin: 1rem 5rem 4em 5rem;
+    margin: 1rem 5rem 4rem 5rem;
+}
+
+.m-auto {
+    margin: auto;
 }
 
 .fl {
@@ -53,7 +75,7 @@
 }
 
 .f-title {
-    font-size: clamp(1rem, 2vw, 3rem)
+    font-size: clamp(2rem, 2vw, 3rem);
 }
 
 .bold {
@@ -68,12 +90,21 @@
     flex-direction: column;
 }
 
+.flex-wrap {
+    flex-wrap: wrap;
+    flex: 1;
+}
+
 .align-around {
     align-items: space-around;
 }
 
 .p-100 {
     padding: .5em;
+}
+
+.p-150 {
+    padding: 1rem;
 }
 
 .justify-between {
@@ -86,6 +117,10 @@
 
 .title {
     font-size: 2.5rem;
+}
+
+.sixteen-nine {
+    aspect-ratio: 16 / 9;
 }
 
 .neuro-morphic-out {
@@ -101,22 +136,61 @@
     color: var(--icon-color);
     border-radius: 1em;
     background: linear-gradient(145deg, #1c2022, #212529);
-    box-shadow:  1.5rem 1.8rem 3rem #15181a,
-            -1.5rem -1.8rem 3rem #2b3033;
+    box-shadow:  1.2rem 1.2rem 3rem #15181a,
+            -1.2rem -1.2rem 3rem #2b3033;
     transition: ease .3s all;
 }
 
-.neuro-morphic-in:hover {
-    color: gray;
-    box-shadow:  25px 25px 78px #101213,
-    -25px -25px 78px #363d42;
-}
-
 .underline {
-    border-bottom: 4px solid var(--icon-color); 
+    text-decoration: underline;
+    text-decoration-color: var(--icon-color);
 }
 
-@media screen and (max-width: 1007px) {
+.no-underline {
+    text-decoration: none;
+}
+
+.rounded-200 {
+    border-radius: 1.5rem;
+}
+
+.color-white {
+    color: white;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.m-100 {
+    margin: 1em;
+}
+
+.grid {
+    display: grid;
+}
+
+.place-center {
+    place-items: center;
+}
+
+.overflow-none {
+    overflow: none;
+}
+
+.m-y-2 {
+    margin: 2rem 0;
+}
+
+.m-2 {
+    margin: 2rem;
+}
+
+.prim-icon-color {
+    color: var(--icon-color);
+}
+
+@media screen and (max-width: 1064px) {
     .w-1-4 {
         display: none;
     }

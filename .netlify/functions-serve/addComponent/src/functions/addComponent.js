@@ -25,6 +25,11 @@ var __markAsModule = (target) => __defProp(target, "__esModule", { value: true }
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[Object.keys(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
+var __export = (target, all) => {
+  __markAsModule(target);
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
 var __reExport = (target, module2, desc) => {
   if (module2 && typeof module2 === "object" || typeof module2 === "function") {
     for (let key of __getOwnPropNames(module2))
@@ -51357,7 +51362,13 @@ var require_mongoose = __commonJS({
   }
 });
 
-// db_config/component_models.js
+// db/models.js
+var models_exports = {};
+__export(models_exports, {
+  CPU: () => CPU,
+  GPU: () => GPU,
+  RAM: () => RAM
+});
 var import_mongoose = __toModule(require_mongoose());
 import_mongoose.default.connect(process.env.URI);
 var component = new import_mongoose.Schema({
@@ -51374,10 +51385,14 @@ var component = new import_mongoose.Schema({
     required: true
   },
   price: {
-    type: Number,
+    type: String,
     required: true
   },
-  imgUrl: {
+  img_url: {
+    type: String,
+    required: true
+  },
+  reference_url: {
     type: String,
     required: true
   }
@@ -51386,11 +51401,32 @@ var GPU = import_mongoose.default.model("Graphics Card", component);
 var CPU = import_mongoose.default.model("Processor", component);
 var RAM = import_mongoose.default.model("RAM", component);
 
-// functions/components.js
-exports.handler = async (event, context) => {
+// db/db_functions.js
+function saveComponent(collection, data) {
+  const model = models_exports[collection];
+  try {
+    model(data).save();
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+  return model;
+}
+
+// functions/addComponent.js
+exports.handler = async (request, context) => {
+  const { type, data } = JSON.parse(request.body);
+  console.debug(request.headers);
+  if (request.headers.auth != process.env.BEARER) {
+    return {
+      statusCode: 404,
+      body: JSON.stringify({ message: "You're not authenticated to access this! " })
+    };
+  }
+  const response = saveComponent(type, data);
   return {
     statusCode: 200,
-    body: event.body
+    body: JSON.stringify({ message: `success uploaded as ${response.name}` })
   };
 };
 /*!
@@ -52565,4 +52601,4 @@ exports.handler = async (event, context) => {
     OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
     PERFORMANCE OF THIS SOFTWARE.
     ***************************************************************************** */
-//# sourceMappingURL=components.js.map
+//# sourceMappingURL=addComponent.js.map

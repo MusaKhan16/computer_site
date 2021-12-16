@@ -51357,7 +51357,7 @@ var require_mongoose = __commonJS({
   }
 });
 
-// db_config/component_models.js
+// models/models.js
 var import_mongoose = __toModule(require_mongoose());
 import_mongoose.default.connect(process.env.URI);
 var component = new import_mongoose.Schema({
@@ -51374,10 +51374,14 @@ var component = new import_mongoose.Schema({
     required: true
   },
   price: {
-    type: Number,
+    type: String,
     required: true
   },
-  imgUrl: {
+  img_url: {
+    type: String,
+    required: true
+  },
+  reference_url: {
     type: String,
     required: true
   }
@@ -51386,11 +51390,20 @@ var GPU = import_mongoose.default.model("Graphics Card", component);
 var CPU = import_mongoose.default.model("Processor", component);
 var RAM = import_mongoose.default.model("RAM", component);
 
-// functions/components.js
-exports.handler = async (event, context) => {
+// functions/get-cpus.js
+exports.handler = async (request, context) => {
+  let data;
+  try {
+    data = await CPU.find({}).lean().exec();
+  } catch (error) {
+    return {
+      statusCode: 505,
+      body: JSON.stringify({ "message": error })
+    };
+  }
   return {
     statusCode: 200,
-    body: event.body
+    body: JSON.stringify(data)
   };
 };
 /*!
@@ -52565,4 +52578,4 @@ exports.handler = async (event, context) => {
     OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
     PERFORMANCE OF THIS SOFTWARE.
     ***************************************************************************** */
-//# sourceMappingURL=components.js.map
+//# sourceMappingURL=get-cpus.js.map

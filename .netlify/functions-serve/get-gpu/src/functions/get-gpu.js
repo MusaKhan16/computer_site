@@ -25,6 +25,11 @@ var __markAsModule = (target) => __defProp(target, "__esModule", { value: true }
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[Object.keys(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
+var __export = (target, all) => {
+  __markAsModule(target);
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
 var __reExport = (target, module2, desc) => {
   if (module2 && typeof module2 === "object" || typeof module2 === "function") {
     for (let key of __getOwnPropNames(module2))
@@ -51357,7 +51362,13 @@ var require_mongoose = __commonJS({
   }
 });
 
-// db_config/component_models.js
+// db/models.js
+var models_exports = {};
+__export(models_exports, {
+  CPU: () => CPU,
+  GPU: () => GPU,
+  RAM: () => RAM
+});
 var import_mongoose = __toModule(require_mongoose());
 import_mongoose.default.connect(process.env.URI);
 var component = new import_mongoose.Schema({
@@ -51374,10 +51385,14 @@ var component = new import_mongoose.Schema({
     required: true
   },
   price: {
-    type: Number,
+    type: String,
     required: true
   },
-  imgUrl: {
+  img_url: {
+    type: String,
+    required: true
+  },
+  reference_url: {
     type: String,
     required: true
   }
@@ -51386,11 +51401,27 @@ var GPU = import_mongoose.default.model("Graphics Card", component);
 var CPU = import_mongoose.default.model("Processor", component);
 var RAM = import_mongoose.default.model("RAM", component);
 
-// functions/components.js
-exports.handler = async (event, context) => {
+// db/db_functions.js
+async function getComponents(collection, query) {
+  let data;
+  console.log(models_exports[collection]);
+  try {
+    data = await models_exports[collection].find(query).lean().exec();
+  } catch (err) {
+    return {
+      message: err
+    };
+  }
+  return data;
+}
+
+// functions/get-gpu.js
+exports.handler = async (request, context) => {
+  let query = JSON.parse(request.body).title;
+  const data = await getComponents("GPU", query ? { title: query } : {});
   return {
-    statusCode: 200,
-    body: event.body
+    statusCode: typeof data == String ? 505 : 200,
+    body: JSON.stringify(data)
   };
 };
 /*!
@@ -52565,4 +52596,4 @@ exports.handler = async (event, context) => {
     OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
     PERFORMANCE OF THIS SOFTWARE.
     ***************************************************************************** */
-//# sourceMappingURL=components.js.map
+//# sourceMappingURL=get-gpu.js.map

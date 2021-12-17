@@ -1,5 +1,3 @@
-import './App.css'
-import './utils.css'
 import Header from './header'
 import Footer from './footer'
 import Body from './body'

@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 
 // Styling
 import './index.css'
+import './App.css'
+import './utils.css'
 
 // Pages
 import Homepage from './homepage'

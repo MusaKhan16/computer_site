@@ -2,8 +2,12 @@ import mongoose, { Schema } from 'mongoose';
 
 mongoose.connect(process.env.URI)
 
-const component = new Schema({
+const product = new Schema({
     title: {
+        type: String,
+        required: true,
+    },
+    type: {
         type: String,
         required: true,
     },
@@ -29,6 +33,10 @@ const component = new Schema({
     }
 })
 
-export const GPU = mongoose.model('Graphics Card', component)
-export const CPU = mongoose.model('Processor', component)
-export const RAM = mongoose.model('RAM', component)
+export const GPU = mongoose.model('Graphics Card', product)
+export const CPU = mongoose.model('Processor', product)
+export const RAM = mongoose.model('RAM', product)
+export const MOTHERBOARD = mongoose.model('Motherboard', product)
+export const NIC = mongoose.model('Nic', product)
+export const CASE = mongoose.model('Case', product)
+export const PERPIPHERALS = mongoose.model('Peripherals', product)

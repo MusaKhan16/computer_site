@@ -7,7 +7,7 @@ function Specifications({ specs, number }) {
             <ul>
                 {
                     Object.keys(specs)
-                        .splice(0, 4)
+                        .splice(0, number)
                         .map((value, idx) => <li key={idx}>{value}: <span style={{ color: 'gray' }}>{specs[value]}</span></li>)
                 }
             </ul>

@@ -13,7 +13,7 @@ import RamPage from './ram_page'
 import About from './about'
 import NotFound from './not_found'
 import ProductPage from './product_page'
-
+import AllProducts from './all_products'
 
 ReactDOM.render(
   <React.StrictMode>
@@ -27,11 +27,11 @@ ReactDOM.render(
         <Route exact path='/video-cards/:title' element={<ProductPage type='gpu' />} />
         <Route exact path='/ram/:title' element={<ProductPage type='ram' />} />
         <Route exact path='/about' element={<About />} />
+        <Route exact path='/all' element={<AllProducts />} />
         <Route path='*' element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,
-
   document.getElementById('root')
 );
 

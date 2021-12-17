@@ -14,7 +14,7 @@ function Header() {
         <div className='m-y-2'>
             <header className='flex justify-around align-center w-max'>
                 <section className='main flex gap-200 align-center justify-around w-1-5'>
-                    <div className='neuro-morphic-out p-100'><HiLightningBolt style={{ padding: '0' }} size={64} /></div>
+                    <div className='neuro-morphic-out p-175 flex items-centered'><HiLightningBolt style={{ padding: '0' }} size={68} /></div>
                     <h1 className='f-l title'>Zodiac</h1>
                 </section>
                 <nav className='flex items-centered w-1-4'>

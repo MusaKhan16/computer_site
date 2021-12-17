@@ -1,29 +1,26 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import ComponentCard from './component_card'
+
 
 function ProductsView(props) {
     const [data, upDate] = useState([])
     const [render, upRender] = useState(false)
 
-    const getComponents = () => {
+    useEffect(() => {
         axios.post(`/.netlify/functions/${props.endpoint}`, {})
-            .then((request) => {
-                upDate(request.data)
+            .then(({ data }) => {
+                upDate(data)
                 upRender(true)
             })
-
-    }
-
-    useState(getComponents, [props.endpoint])
+    }, [props.endpoint])
 
     return (
         <div className='m-2'>
             <div className="component-view-grid">
-                {render && data.map((value, idx) => <ComponentCard key={idx} data={value} />)}
+                {render && data.map((val, idx) => <ComponentCard key={idx} data={val} />)}
             </div>
         </div>
     )
 }
-
 export default ProductsView

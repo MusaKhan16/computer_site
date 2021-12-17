@@ -14,6 +14,7 @@ function ProductPage(props) {
         axios.post(`/.netlify/functions/get-${props.type}`, { title: title })
             .then(({ data }) => {
                 console.log(data)
+                // Check if data exists. Render an error
                 upComponentData(data[0])
                 upRender(true)
             })
@@ -43,8 +44,8 @@ function ProductPage(props) {
             {
                 render && (
                     <div className='flex items-centered h-full'>
-                        <div className="product-grid-layout w-4-6">
-                            <img className='sixteen-nine rounded-200' src={componentData.img_url} alt={componentData.title} />
+                        <div className="product-grid-layout">
+                            <img className='sixteen-nine rounded-200 m-y-2' src={componentData.img_url} alt={componentData.title} />
 
                             <section className='details flex flex-col justify-center'>
 
@@ -56,10 +57,10 @@ function ProductPage(props) {
                                         {componentData.title}
                                     </a>
                                 </h1>
-                                <Specifications specs={componentData.specifications} number={4} />
+                                <Specifications specs={componentData.specifications} number={6} />
                                 <h2>{componentData.price}</h2>
 
-                                <button className='neuro-morphic-out bold' onClick={addToCart}>
+                                <button className='neuro-morphic-out bold m-y-2' onClick={addToCart}>
                                     Add to Cart
                                 </button>
                             </section>

@@ -6,9 +6,7 @@ async function getComponents(collection, query) {
     try {
         data = await Models[collection].find(query).lean().exec()
     } catch (err) {
-        return {
-            message: err
-        }
+        return null
     }
     return data
 }
@@ -18,7 +16,6 @@ function saveComponent(collection, data) {
     try {
         model(data).save()
     } catch (err) {
-        console.error(err)
         return null
     }
     return model

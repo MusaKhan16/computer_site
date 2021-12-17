@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 function Body() {
     return (
@@ -12,7 +13,9 @@ function Body() {
                         stores.
                     </p>
                 </div>
-                <button className='neuro-morphic-in shop-b fl bold'>Shop Now</button>
+                <Link style={{ borderBottom: 'none' }} to='all'>
+                    <button className='neuro-morphic-in shop-b fl bold'>Shop Now</button>
+                </Link>
             </section>
             <section className='flex items-centered'>
                 <img width='70%' alt='PC' src='https://www.seekpng.com/png/full/291-2914051_artist-render-of-nzxt-aer-rgb-fans-within.png' />

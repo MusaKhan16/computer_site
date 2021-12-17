@@ -193,9 +193,3 @@
 .prim-icon-color {
     color: var(--icon-color);
 }
-
-@media screen and (max-width: 1064px) {
-    .w-1-4 {
-        display: none;
-    }
-}

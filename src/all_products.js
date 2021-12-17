@@ -4,7 +4,7 @@ import ProductsView from './products_view'
 import Footer from './footer'
 import Header from './header'
 
-const components = ['get-cpu', 'get-ram', 'get-gpu']
+const components = ['get-motherboard', 'get-case', 'get-nic']
 
 function AllProducts() {
     return (

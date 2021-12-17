@@ -13,7 +13,7 @@ function Body() {
                         stores.
                     </p>
                 </div>
-                <Link style={{ borderBottom: 'none' }} to='all'>
+                <Link style={{ borderBottom: 'none' }} to='products'>
                     <button className='neuro-morphic-in shop-b fl bold'>Shop Now</button>
                 </Link>
             </section>

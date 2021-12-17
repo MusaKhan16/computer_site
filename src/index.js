@@ -22,6 +22,7 @@ ReactDOM.render(
     <BrowserRouter>
       <Routes>
         <Route exact path='/' element={<Homepage />} />
+        <Route exact path='/products' element={<AllProducts />} />
         <Route exact path='/processors' element={<CpuPage />} />
         <Route exact path='/video-cards' element={<GpuPage />} />
         <Route exact path='/ram' element={<RamPage />} />
@@ -29,7 +30,6 @@ ReactDOM.render(
         <Route exact path='/video-cards/:title' element={<ProductPage type='gpu' />} />
         <Route exact path='/ram/:title' element={<ProductPage type='ram' />} />
         <Route exact path='/about' element={<About />} />
-        <Route exact path='/all' element={<AllProducts />} />
         <Route path='*' element={<NotFound />} />
       </Routes>
     </BrowserRouter>

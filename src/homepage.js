@@ -1,6 +1,6 @@
-import Header from './header'
-import Footer from './footer'
-import Body from './body'
+import Header from './header.js'
+import Footer from './footer.js'
+import Body from './body.js'
 
 function Homepage() {
   return (

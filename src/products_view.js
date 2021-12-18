@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import ComponentCard from './component_card'
+import ComponentCard from './component_card.js'
 
 
 function ProductsView(props) {

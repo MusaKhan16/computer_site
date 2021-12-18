@@ -8,14 +8,15 @@ import './App.css'
 import './utils.css'
 
 // Pages
-import Homepage from './homepage'
-import CpuPage from './cpu_page'
-import GpuPage from './gpu-page'
-import RamPage from './ram_page'
-import About from './about'
-import NotFound from './not_found'
-import ProductPage from './product_page'
-import AllProducts from './all_products'
+import Homepage from './homepage.js'
+import CpuPage from './cpu_page.js'
+import GpuPage from './gpu-page.js'
+import RamPage from './ram_page.js'
+import About from './about.js'
+import NotFound from './not_found.js'
+import ProductPage from './product_page.js'
+import DynamicProductPage from './dynamic.js'
+import AllProducts from './all_products.js'
 
 ReactDOM.render(
   <React.StrictMode>
@@ -23,6 +24,8 @@ ReactDOM.render(
       <Routes>
         <Route exact path='/' element={<Homepage />} />
         <Route exact path='/products' element={<AllProducts />} />
+        <Route exact path='/products/:type/:title' element={<DynamicProductPage />} />
+        {/* Try to add a dynamic route such that ProductPage will work with any product two paramters*/}
         <Route exact path='/processors' element={<CpuPage />} />
         <Route exact path='/video-cards' element={<GpuPage />} />
         <Route exact path='/ram' element={<RamPage />} />

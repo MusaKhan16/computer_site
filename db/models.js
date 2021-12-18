@@ -7,10 +7,6 @@ const product = new Schema({
         type: String,
         required: true,
     },
-    type: {
-        type: String,
-        required: true,
-    },
     description: {
         type: String,
         required: true,
@@ -39,4 +35,4 @@ export const RAM = mongoose.model('RAM', product)
 export const MOTHERBOARD = mongoose.model('Motherboard', product)
 export const NIC = mongoose.model('Nic', product)
 export const CASE = mongoose.model('Case', product)
-export const PERPIPHERALS = mongoose.model('Peripherals', product)
+export const PERIPHERALS = mongoose.model('Peripherals', product)

@@ -1,10 +1,11 @@
 import axios from 'axios'
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import Specifications from './specs'
-import Header from './header'
-import Footer from './footer'
+import Specifications from './specs.js'
+import Header from './header.js'
+import Footer from './footer.js'
 
+// Check for type from url by mapping CPu gpu ram to certian endpoints and other components can be double paramter dynamic
 function ProductPage(props) {
     const { title } = useParams()
     const [componentData, upComponentData] = useState({})
@@ -13,6 +14,7 @@ function ProductPage(props) {
     const getComponentData = () => {
         axios.post(`/.netlify/functions/get-${props.type}`, { title: title })
             .then(({ data }) => {
+                console.log(title)
                 console.log(data)
                 // Check if data exists. Render an error
                 upComponentData(data[0])
@@ -37,7 +39,6 @@ function ProductPage(props) {
     }
 
     useEffect(getComponentData, [props.type, title])
-    // fIx frontend design absolute bs.
     return (
         <div className='h-full grid-body'>
             <Header />
@@ -73,7 +74,7 @@ function ProductPage(props) {
                     </div>
                 )
             }
-            <Footer />
+            {render && <Footer />}
         </div >
     )
 }

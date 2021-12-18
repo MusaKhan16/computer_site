@@ -1,7 +1,7 @@
 import React from 'react'
-import Header from './header'
-import Footer from './footer'
-import ProductsView from './products_view'
+import Header from './header.js'
+import Footer from './footer.js'
+import ProductsView from './products_view.js'
 
 function GpuPage() {
     return (

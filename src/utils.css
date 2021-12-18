@@ -158,6 +158,10 @@
     border-radius: 1.5rem;
 }
 
+.align-start {
+    align-self: start;
+}
+
 .color-white {
     color: white;
 }

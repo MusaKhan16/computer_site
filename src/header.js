@@ -1,22 +1,30 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BsCartFill } from 'react-icons/bs'
 import { HiLightningBolt, HiMenu } from 'react-icons/hi'
 
 
 function Header() {
+    const [clicked, updateClick] = useState(false)
+    const [windowX, updateWindowX] = useState(0)
+    const navStyleShown = { transform: 'translateX(100%)' }
 
     useEffect(() => {
         if (!localStorage.cart) localStorage.setItem('cart', '[]');
+        window.addEventListener('resize', () => updateWindowX(window.innerWidth))
     }, [])
 
     return (
         <div className='m-y-2'>
-            <header className='flex justify-around align-center w-max'>
-                <div className='neuro-morphic-out p-175 flex items-centered'><HiLightningBolt style={{ padding: '0' }} size={68} /></div>
+            <header className='header'>
+                <div className='neuro-morphic-out p-175 flex items-centered'>
+                    <HiLightningBolt style={{ padding: '0' }} size={68} />
+                </div>
                 <h1 className='f-l title'>Zodiac</h1>
-                <div><HiMenu size={32} className='nav-icon' /></div>
-                <nav className='Nav'>
+                <div>
+                    <HiMenu size={38} className='nav-icon' onClick={() => updateClick(!clicked)} />
+                </div>
+                <nav className='Nav' style={(clicked && windowX < 1064) ? navStyleShown : {}}>
                     <ul className='Head flex justify-around align-center'>
                         <li><Link to='/'>Home</Link></li>
                         <li><Link to='/video-cards'>Video Cards</Link></li>

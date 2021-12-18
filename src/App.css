@@ -89,6 +89,19 @@ button {
   transform: translateY(-4px);
 }
 
+.about {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(200px, 1fr)); 
+  width: 80%;
+  place-items: center;
+  text-align: center;
+  gap: 4rem;
+}
+
+.about-main {
+  grid-column: span 2;
+}
+
 .product-grid-layout {
   display: grid;
   grid-template-columns: 1.8fr 1fr;
@@ -116,7 +129,7 @@ button {
 .component-view-grid {
   display: grid;
   gap: 2rem;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
 }
 
 .description {
@@ -129,17 +142,20 @@ button {
   align-self: start;
   height: 80%;
   width: clamp(50%, 80%, 100%);
+  margin-top: 2rem;
 }
 
 .Nav {
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: .5s ease transform;
+  z-index: 1000;
 }
 
 .footer {
   padding: 1.5rem;
-  color: white;
+  color: whitesmoke;
   background: linear-gradient(to right, violet, coral);
   margin-top: 3rem;
 }
@@ -151,11 +167,35 @@ button {
 
 .nav-icon {
   display: none;
-  z-index: 1000;
 }
 
+.nav-icon:hover {
+  cursor: pointer;
+  transform: scale(1.05);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.zodiac-img {
+  aspect-ratio: 16 / 9;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+}
+
+.zodiac-main, .about-testimonial {
+  grid-column: span 2;
+}
 
 @media screen and (max-width: 1064px) {
+  html {
+    width:auto;
+  }
+
   .product-grid-layout {
      grid-template-columns: 1fr;
      grid-template-rows: .6fr .8fr .4fr;
@@ -163,33 +203,40 @@ button {
      width: 100%;
   }
 
+  .testimonial-pfp {
+    aspect-ratio: 16 / 9;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+  }
+
   .nav-icon {
     display: block;
+    position: absolute;
+    right: 10%;
+    top: 65px;
+    z-index: 9999;
   }
 
   .details {
     grid-row: span 1;
   }
 
-
   .Nav {
-    display: none;
-  }
-
-  /*
-  .Nav {
-    position: absolute;
-    inset: 0 0 0 clamp(40%, 30%, 500px);
-    height: 100%;
-    background-color: rgba(0 0 0 / 0.2);
+    position: fixed;
+    top: 0px;
+    left: -100%;
+    width: 100%;
+    height: 500px;
+    background: rgba(0 0 0 / 0.2);
     backdrop-filter: blur(5em);
   }
 
   .Nav ul {
     flex-direction: column;
-    height: 50%;
+    gap: 2rem;
+    font-size: clamp(1rem, 80%, 3rem);
   }
-  */
 }
 
 
